@@ -1,3 +1,4 @@
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -26,25 +27,48 @@ int main() {
  if(str.empty()) continue;
   char direction = str[0]; // L or R
   int magnitude  = std::stoi(str.substr(1));
-
+  int distance_to_zero = 0;
+  int remaining_distance = 0;
+  int laps = 0;
+  int startPos = 0;
+  int totalChange = 0;
   if(direction == 'L') {
-   currentDial -= magnitude;
+   startPos = currentDial;
+
+   if(startPos == 0) {
+    distance_to_zero = dialSize;
+   } else {
+    distance_to_zero = startPos;
+   }
+   totalChange -= magnitude;
+   int initial_hit = magnitude >= distance_to_zero;
+   // Determining the amount of times magnitude (e.g. R300) would pass 0
+   remaining_distance = magnitude - distance_to_zero;
+   laps = remaining_distance / dialSize;
+   counter = counter + initial_hit + laps;
   }
   else if(direction == 'R') {
-   currentDial += magnitude;
+   startPos = currentDial;
+
+   if(startPos == 0) {
+    distance_to_zero = dialSize;
+   } else {
+    distance_to_zero = dialSize - startPos;
+   }
+   totalChange += magnitude;
+   
+   int initial_hit = magnitude >= distance_to_zero;  
+   remaining_distance = magnitude - distance_to_zero; // For Right turns
+   laps = remaining_distance / dialSize;
+
+   counter = counter + initial_hit + laps;
   }
   else {
    continue;
   }
- // TO DO:
- // Everytime currentDial turns 100 times. E.g. R731, everytime it passes 0, add 1 to the counter, so the counter in this example would be 7 
- // std::floor(magnitude);
+  // Everytime magnitude turns 100 times. E.g. R731, everytime it passes 0, add 1 to the counter, so the counter in this example would be 7 
+  currentDial += totalChange;
   currentDial = ((currentDial % dialSize) + dialSize) % dialSize;
-
-  if(currentDial == 0) {
-   counter++;
-  }
-
 }
 
  std::cout << "\nTotal Zeros:" << counter; 
